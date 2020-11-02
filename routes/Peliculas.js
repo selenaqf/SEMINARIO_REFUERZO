@@ -91,5 +91,26 @@ router.put("/peliculas", (req, res) =>
     res.status(200).json(docs);
     });
 });
+
+
+router.delete("/peliculas", (req, res)=>
+{
+    var params = req.query;
+    if (params.id == null)
+    {
+        res.status(300).json({msn: "El parametro es necesario"});
+        return;
+    }
+    PELICULAS.remove({_id: params.id}, (err,docs) =>
+    {
+        if(err)
+        {
+        res.status(500).json({msn: "Exite error en la base datos"});
+        return;
+        }
+        res.status(200).json(docs);
+    });
+});
+
 module.exports = router;
 
