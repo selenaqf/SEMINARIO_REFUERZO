@@ -1,14 +1,16 @@
 const mongoose = require("./connect");
-var PELICULASSCHEMA = {  
+var PELICULASSCHEMA = new mongoose.Schema ({  
+
 Titulo_Pelicula : String,  
 Descripcion     : String,  
 Foto_Portada    : String,  
-Foto_Principal  : Date,  
+Foto_Principal  : String,  
 Sinopsis        : String,  
 Idioma          : String,
-Raiting         : String,
+Raiting         : Number,
 Lista           : Array
-}
 
-const PELICULAS = mongoose.model("users", PELICULASSCHEMA);
+});
+
+var PELICULAS = mongoose.model("Peliculas", PELICULASSCHEMA);
 module.exports = PELICULAS;

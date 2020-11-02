@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-mongoose.connect("mongodb://172.26.0.2:27017/PELICULAS", {useNewUrlParser: true});
-var db = mongose.connection;
+mongoose.connect("mongodb://172.27.0.2:27017/PELICULAS", {useNewUrlParser: true});
+var db = mongoose.connection;
 db.on("ERROR", () => {
     console.log("ERROR NO SE PUEDE CONECTAR AL SERVIDOR");
 });
