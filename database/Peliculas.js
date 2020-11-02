@@ -8,7 +8,11 @@ Foto_Principal  : String,
 Sinopsis        : String,  
 Idioma          : String,
 Raiting         : Number,
-Lista           : Array
+Lista           : [{
+
+    Nombre_Servidor: String
+
+}]
 
 });
 

@@ -1,6 +1,10 @@
 var express = require("express");
 var router = express.Router();
 var PELICULAS = require("../database/Peliculas");
+var fileUpload = require("express-fileupload")
+router.use(fileUpload ({
+
+}));
 
 router.post("/peliculas", (req, res) => {
     var peliculasRest = req.body;
