@@ -38,4 +38,8 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+const port = 8000;
+app.listen(port, () =>{  
+console.log("Corriendo en el puerto " + port)});
+
 module.exports = app;
