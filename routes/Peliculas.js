@@ -1,10 +1,26 @@
 var express = require("express");
+var sha1 = require("sha1");
 var router = express.Router();
 var PELICULAS = require("../database/Peliculas");
 var fileUpload = require("express-fileupload")
 router.use(fileUpload ({
-
+    fileSize: 50 * 1024 * 1024
 }));
+
+router.post("/sendfile", (req, res) => {
+    console.log(req.files);
+    var image = req.files.file;
+    var path = __dirname.replace(/\/routes/g, "/image");
+    var date = new Date();
+    var sing = sha1(date.toString()).substr(1, 5);
+
+    image.mv(path + "/" + sing + "_" + image.name.replace(/\s/g,"_"), (err) => {
+        if (err) {
+            return res.status(300).send({msn : "ERROR AL ESCRIBIR EL ARCHIVO EN EL DISCO DURO"});
+        }
+        res.status(200).json({name: image.name});
+    });
+});
 
 router.post("/peliculas", (req, res) => {
     var peliculasRest = req.body;
