@@ -1,11 +1,13 @@
 const mongoose = require("./connect");
 var PELICULASSCHEMA = {  
-name        : String,  
-email       : String,  
-password    : String,  
-registerdate: Date,  
-sex         : String,  
-address     : String
+Titulo_Pelicula : String,  
+Descripcion     : String,  
+Foto_Portada    : String,  
+Foto_Principal  : Date,  
+Sinopsis        : String,  
+Idioma          : String,
+Raiting         : String,
+Lista           : Array
 }
 
 const PELICULAS = mongoose.model("users", PELICULASSCHEMA);
