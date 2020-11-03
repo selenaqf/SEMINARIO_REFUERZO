@@ -3,8 +3,12 @@ var sha1 = require("sha1");
 var router = express.Router();
 var PELICULAS = require("../database/Peliculas");
 var fileUpload = require("express-fileupload")
-router.use(fileUpload ({
-    fileSize: 50 * 1024 * 1024
+
+router.use(fileUpload 
+({
+    fileSize: 50 * 1024 * 1024,
+    useTempFiles : true,
+    tempFileDir: '/public/'
 }));
 
 router.post("/sendfile", (req, res) => {
@@ -16,11 +20,47 @@ router.post("/sendfile", (req, res) => {
 
     image.mv(path + "/" + sing + "_" + image.name.replace(/\s/g,"_"), (err) => {
         if (err) {
+            console.log(err);
             return res.status(300).send({msn : "ERROR AL ESCRIBIR EL ARCHIVO EN EL DISCO DURO"});
         }
-        res.status(200).json({name: image.name});
+        res.status(200).json({name : path + "/" + sing + "_" + image.name.replace(/\s/g,"_")});
     });
 });
+
+router.put("/sendfile/updateimage",async(req,res) => {
+    console.log(req.files);
+    var params = req.query;
+    if(params.id == null)
+    {
+        res.status(300).json({msn: "EL PARAMETRO ID ES NECESARIO"});
+        return;
+    }
+    var path = __dirname.replace(/\/routes/g, "/image");
+    var date = new Date();
+    var sing = sha1(date.toString()).substr(1, 5);
+    var arrUrl=[];
+    //recorre las imagenes enviadas para insertar y actualizar el objeto pelicula con el id
+    req.files.file.forEach((dat,index)=>{
+      arrUrl.push(path + "/" + sing + "_" + dat.name.replace(/\s/g,"_"));
+      dat.mv(path + "/" + sing + "_" + dat.name.replace(/\s/g,"_"), (err) => {
+          if (err) {
+            console.log(err);
+              return res.status(300).send({msn : "ERROR AL ESCRIBIR EL ARCHIVO EN EL DISCO DURO"});
+          }
+          console.log("imagen " + index + " insertada insertada");
+      });
+    });
+    //rescatas el documento para actualizar tu coleccion
+    let doc=await PELICULAS.findOne({_id:params.id});
+    doc.Foto_Portada=arrUrl[0];
+    doc.Foto_Principal=arrUrl[1];
+    PELICULAS.findByIdAndUpdate(params.id,doc,()=>{
+      res.status(200).json({
+        message:'IMAGEN DE PORTADA PRINCIPAL INSERTADOS'
+      });
+    });
+});
+
 
 router.post("/peliculas", (req, res) => {
     var peliculasRest = req.body;
