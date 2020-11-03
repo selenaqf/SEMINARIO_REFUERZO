@@ -3,12 +3,8 @@ var sha1 = require("sha1");
 var router = express.Router();
 var PELICULAS = require("../database/Peliculas");
 var fileUpload = require("express-fileupload")
-
-router.use(fileUpload 
-({
-    fileSize: 50 * 1024 * 1024,
-    useTempFiles : true,
-    tempFileDir: '/public/'
+router.use(fileUpload ({
+    fileSize: 50 * 1024 * 1024
 }));
 
 router.post("/sendfile", (req, res) => {
@@ -23,23 +19,23 @@ router.post("/sendfile", (req, res) => {
             console.log(err);
             return res.status(300).send({msn : "ERROR AL ESCRIBIR EL ARCHIVO EN EL DISCO DURO"});
         }
-        res.status(200).json({name : path + "/" + sing + "_" + image.name.replace(/\s/g,"_")});
+        res.status(200).json({name: image.name});
     });
 });
 
-router.put("/sendfile/updateimage",async(req,res) => {
+router.put("/sendfile/updateimage",async(req,res)=>{
     console.log(req.files);
     var params = req.query;
     if(params.id == null)
     {
-        res.status(300).json({msn: "EL PARAMETRO ID ES NECESARIO"});
+        res.status(300).json({msn: "El parametro ID es necesario"});
         return;
     }
     var path = __dirname.replace(/\/routes/g, "/image");
     var date = new Date();
     var sing = sha1(date.toString()).substr(1, 5);
     var arrUrl=[];
-    //recorre las imagenes enviadas para insertar y actualizar el objeto pelicula con el id
+    //recorre las imagenes que envias para insertar y actualizar el objeto pelicula con el id
     req.files.file.forEach((dat,index)=>{
       arrUrl.push(path + "/" + sing + "_" + dat.name.replace(/\s/g,"_"));
       dat.mv(path + "/" + sing + "_" + dat.name.replace(/\s/g,"_"), (err) => {
@@ -47,7 +43,7 @@ router.put("/sendfile/updateimage",async(req,res) => {
             console.log(err);
               return res.status(300).send({msn : "ERROR AL ESCRIBIR EL ARCHIVO EN EL DISCO DURO"});
           }
-          console.log("imagen " + index + " insertada insertada");
+          console.log("imagen "+index+" insertada insertada");
       });
     });
     //rescatas el documento para actualizar tu coleccion
@@ -56,7 +52,7 @@ router.put("/sendfile/updateimage",async(req,res) => {
     doc.Foto_Principal=arrUrl[1];
     PELICULAS.findByIdAndUpdate(params.id,doc,()=>{
       res.status(200).json({
-        message:'IMAGEN DE PORTADA PRINCIPAL INSERTADOS'
+        message:'imagen de portada y principal insrtados'
       });
     });
 });
@@ -68,13 +64,6 @@ router.post("/peliculas", (req, res) => {
     peliculasDB.save((err, docs) => {
         if (err) {
             var errors = err.errors;
-            var msn = Object.keys(errors);
-            var msn = {};
-
-            for (var i = 0; i< keys.length; i++) {
-                msn[keys[i]] = errors[keys[i]].message;
-            }
-
             res.status(500).json(errors);
             return;
         }
@@ -171,6 +160,36 @@ router.delete("/peliculas", (req, res)=>
         res.status(200).json(docs);
     });
 });
+
+//lista de servidores
+router.put("/peliculas/lista",async(req,res)=>{
+    //agarra el id del objeto pelicula para insertar la lista
+    var params = req.query;
+    if (params.id == null)
+    {
+        res.status(300).json({msn: "El parametro es necesario"});
+        return;
+    }
+    //recoje la lista string y cortar la cadena en un vector
+    let lista=req.body.lista.split(',');
+    //recoge la consulta en una variable
+    let doc= await PELICULAS.findOne({_id:params.id});
+    //recorre la lista a insertar en el documento
+    let arr=[];
+    lista.forEach(dat=>{
+      arr.push({
+        Nombre_Servidor:dat
+      });
+    });
+    //actualiza el documento
+    doc.Lista=arr;
+    PELICULAS.findByIdAndUpdate(params.id,doc,()=>{
+      res.status(200).json({
+        msn:'lista de servidores insertados'
+      });
+    });
+});
+
 
 module.exports = router;
 
